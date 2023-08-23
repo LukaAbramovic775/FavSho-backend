@@ -1,13 +1,11 @@
-import mongo from "mongodb";
-
-const mongos = require('mongodb');
+const mongodb = require("mongodb");
 
 let connection_string = "mongodb+srv://admin:admin@cluster0.z0t9efu.mongodb.net/?retryWrites=true&w=majority";
 
-let client = new mongos.MongoClient(connection_string, {
+let client = new mongodb.MongoClient(connection_string, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-});
+}); 
 
 let db = null
 // eksportamo Promise koji resolva na konekciju

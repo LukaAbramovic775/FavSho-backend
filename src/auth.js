@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import mongo from "mongodb";
 import connect from "./db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -19,10 +18,10 @@ export default {
       let doc = {
         username: userData.username,
         // lozinku ćemo hashirati pomoću bcrypta
-        password: await bcrypt.hash(userData.password, 8),
+        password: await bcrypt.hash(userData.password, 4),
         name: userData.name,
       };
-      result = await db.collection("users").insertOne(doc);
+          result = await db.collection("users").insertOne(doc);
     } catch (e) {
       if (e.name == "MongoError") {
         if (e.code == 11000) {
@@ -54,21 +53,24 @@ export default {
       throw new Error("Cannot authenticate");
     }
   },
-  verifyUser(req, res, next) {
-    try{
-        let authorization = req.headers.authorization.split(" ");
-        let type = authorization[0];
-        let token = authorization[1];
-        if(type !== "Bearer"){
-            return res.status(401).send();
+  // express.js middleware function
+  verify(req, res, next) {
+    if (req.headers['authorization']) {
+        try {
+            let authorization = req.headers['authorization'].split(' ');
+            if (authorization[0] !== 'Bearer') {
+                return res.status(401).send(); // HTTP invalid requets
+            } else {
+                let token = authorization[1];
+                // spremi uz upit, verify baca grešku(exception) ako ne uspije
+                req.jwt = jwt.verify(authorization[1], process.env.JWT_SECRET);
+                return next();
+            }
+        } catch (err) {
+            return res.status(401).send(); // HTTP not-authorized
         }
-        else{
-            req.jwt =jwt.verify(token, process.env.JWT_SECRET);
-            return next();
-        }
+    } else {
+        return res.status(401).send(); // HTTP invalid request
     }
-    catch(e){
-      return res.status(401).send({Error: "error"});
-    }
-  }
+},
 };
