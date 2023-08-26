@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
+ 
 import connect from "./db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+ 
 // Kreiranje indeksa pri pokretanju aplikacije (ukoliko već ne postoji)
 (async () => {
   let db = await connect();
@@ -18,21 +18,17 @@ export default {
       let doc = {
         email: userData.email,
         // lozinku ćemo hashirati pomoću bcrypta
-        password: await bcrypt.hash(userData.password, 4),
+        password: await bcrypt.hash(userData.password, 8)
       };
-          result = await db.collection("users").insertOne(doc);
+      result = await db.collection("users").insertOne(doc);
     } catch (e) {
-      if (e.email == "MongoError") {
-        if (e.code == 11000) {
+        if(e.code == 11000) {
           throw new Error("email already exists");
+        } else {
+          console.error("Following error occurred: ", e)
         }
-      }
     }
-    if (result && result.insertedCount == 1) {
       return result.insertedId;
-    } else {
-      throw new Error("Cannot register user");
-    }
   },
   async authenticateUser(email, password) {
     let db = await connect();
@@ -43,7 +39,7 @@ export default {
         algorithm: "HS512",
         expiresIn: "1 week",
       });
-
+ 
     return {
       token,
       email: user.email,

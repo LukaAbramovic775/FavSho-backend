@@ -11,8 +11,12 @@ app.use(cors());
 app.use(express.json());
 // ne možeš pristupiti tajni ako ne prođeš `auth.verify`
 app.get("/tajna", [auth.verify], async (req, res) => {
-// nakon što se izvrši auth.verify middleware, imamo dostupan req.jwt objekt
-   res.status(200).send("tajna korisnika " + req.jwt.email);
+  try {
+    // Auth middleware completed successfully
+    res.status(200).send("tajna korisnika " + req.jwt.email);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 //Registracija
@@ -78,14 +82,18 @@ app.get('/series', async (req , res) =>{
   res.json(series);
 });
 
-app.get('/', async (req , res) =>{
-  console.log("cekam konekciju");
-  let db = await connect();
-  console.log("cekam konekciju");
-  let cursor = await db.collection('series').find();
-  let series = await cursor.toArray();
+app.get('/', async (req, res) => {
+  try {
+    console.log("cekam konekciju");
+    let db = await connect();
+    console.log("cekam konekciju");
+    let cursor = await db.collection('series').find();
+    let series = await cursor.toArray();
   
-  res.json(series);
+    res.json(series);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(port, () => console.log("Slušam na portu: ", port));
