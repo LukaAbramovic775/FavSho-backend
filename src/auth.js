@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 // Kreiranje indeksa pri pokretanju aplikacije (ukoliko već ne postoji)
 (async () => {
   let db = await connect();
-  db.collection("users").createIndex({ username: 1 }, { unique: true });
+  db.collection("users").createIndex({ email: 1 }, { unique: true });
 })();
 export default {
   async registerUser(userData) {
@@ -16,16 +16,15 @@ export default {
     let result;
     try {
       let doc = {
-        username: userData.username,
+        email: userData.email,
         // lozinku ćemo hashirati pomoću bcrypta
         password: await bcrypt.hash(userData.password, 4),
-        name: userData.name,
       };
           result = await db.collection("users").insertOne(doc);
     } catch (e) {
-      if (e.name == "MongoError") {
+      if (e.email == "MongoError") {
         if (e.code == 11000) {
-          throw new Error("Username already exists");
+          throw new Error("email already exists");
         }
       }
     }
@@ -35,9 +34,9 @@ export default {
       throw new Error("Cannot register user");
     }
   },
-  async authenticateUser(username, password) {
+  async authenticateUser(email, password) {
     let db = await connect();
-    let user = await db.collection("users").findOne({ username: username });
+    let user = await db.collection("users").findOne({ email: email });
     if (user && user.password && (await bcrypt.compare(password, user.password))) {
       delete user.password; // ne želimo u tokenu, token se sprema na klijentu
       let token = jwt.sign(user, process.env.JWT_SECRET, {
@@ -47,7 +46,7 @@ export default {
 
     return {
       token,
-      username: user.username,
+      email: user.email,
     };
     } else {
       throw new Error("Cannot authenticate");
