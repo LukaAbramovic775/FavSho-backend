@@ -95,5 +95,37 @@ app.get('/', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.post('/favourite_series', async (req, res) => {
+  let db = await connect();
+  let wishlist = req.body;
+
+  try {
+    await db.collection('watchlist').createIndex({ user: 1, series: 1 }, { unique: true });
+    let result = await db.collection('watchlist').insertOne(wishlist);
+
+    if (result.insertedCount == 1) {
+      res.send({
+        status: 'success',
+        id: result.insertedId,
+      });
+    } else {
+      res.send({
+        status: 'crashed',
+      });
+    }
+  } catch (error) {
+    if (error.code === 11000) {
+      res.send({
+        status: 'crashed',
+        message: 'Already added series',
+      });
+    } else {
+      console.error('Greška:', error);
+      res.send({
+        status: 'crashed',
+      });
+    }
+  }
+});
 
 app.listen(port, () => console.log("Slušam na portu: ", port));
