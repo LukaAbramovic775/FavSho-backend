@@ -97,11 +97,11 @@ app.get('/', async (req, res) => {
 });
 app.post('/favourite_series', async (req, res) => {
   let db = await connect();
-  let wishlist = req.body;
+  let watchlist = req.body;
 
   try {
     await db.collection('watchlist').createIndex({ user: 1, series: 1 }, { unique: true });
-    let result = await db.collection('watchlist').insertOne(wishlist);
+    let result = await db.collection('watchlist').insertOne(watchlist);
 
     if (result.insertedCount == 1) {
       res.send({
