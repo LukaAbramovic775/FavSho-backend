@@ -71,6 +71,19 @@ app.post('/series', async (req , res) =>{
   console.log(result);
 
 });
+// Brisanje serija
+app.post("/favourite_series/delete/:id", async (req, res) => {
+  let id = req.params.id;
+  let db = await connect();
+  let result = await db.collection("watchlist").deleteOne({ _id: mongo.ObjectId(id) });
+  if (result && result.deletedCount === 1) {
+    res.json(result);
+  } else {
+    res.json({
+      status: "crashed",
+    });
+  }
+});
 
 // popis serija
 app.get('/series', async (req , res) =>{
@@ -82,19 +95,19 @@ app.get('/series', async (req , res) =>{
   res.json(series);
 });
 
+// Popis serija na početnoj
 app.get('/', async (req, res) => {
   try {
-    console.log("cekam konekciju");
     let db = await connect();
-    console.log("cekam konekciju");
     let cursor = await db.collection('series').find();
     let series = await cursor.toArray();
-  
     res.json(series);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
+// slanje serija na omiljene
 app.post('/favourite_series', async (req, res) => {
   let db = await connect();
   let watchlist = req.body;
@@ -126,6 +139,19 @@ app.post('/favourite_series', async (req, res) => {
       });
     }
   }
+});
+
+// popis serija za korisnike
+app.get('/favourite_series/:user', async (req , res) => {
+  let user = req.params.user;
+  let db = await connect();
+
+  console.log(user)
+  let document = await db.collection('watchlist').find({user:user})
+  let results = await document.toArray();
+  
+ 
+  res.json(results)
 });
 
 app.listen(port, () => console.log("Slušam na portu: ", port));
