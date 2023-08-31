@@ -125,6 +125,7 @@ app.post('/favourite_series', async (req, res) => {
 
   try {
     await db.collection('watchlist').createIndex({ user: 1, series: 1 }, { unique: true });
+
     let result = await db.collection('watchlist').insertOne(watchlist);
 
     if (result.insertedCount == 1) {
@@ -144,7 +145,7 @@ app.post('/favourite_series', async (req, res) => {
         message: 'Already added series',
       });
     } else {
-      console.error('Greška:', error);
+      console.error('Error:', error);
       res.send({
         status: 'crashed',
       });
