@@ -106,6 +106,17 @@ app.get('/', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// prikazivanje serija po platformama
+app.get('/series/:platform', async (req , res) => {
+  let platform = req.params.platform;
+  let db = await connect();
+
+  console.log("Platform: ",platform);
+  let document = await db.collection('series').find({platform: platform});
+  let results = await document.toArray();
+  
+  res.json(results);
+});
 
 // slanje serija na omiljene
 app.post('/favourite_series', async (req, res) => {
