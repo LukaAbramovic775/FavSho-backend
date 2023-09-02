@@ -9,7 +9,7 @@ const port = 3000; // port na kojem će web server slušati
 
 app.use(cors({
     origin: ["*"],
-    methods: ["POST", "GET",],
+    methods: ["POST", "GET"],
     credentials: true
   }));
 app.use(express.json());
