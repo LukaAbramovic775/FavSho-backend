@@ -7,7 +7,11 @@ import cors from "cors";
 const app = express(); // instanciranje aplikacije
 const port = 3000; // port na kojem će web server slušati
 
-app.use(cors());
+app.use(cors({
+    origin: ["https://fav-sho-backend.vercel.app"],
+    methods: ["POST", "GET"],
+    credentials: true
+  }));
 app.use(express.json());
 // ne možeš pristupiti tajni ako ne prođeš `auth.verify`
 app.get("/tajna", [auth.verify], async (req, res) => {
