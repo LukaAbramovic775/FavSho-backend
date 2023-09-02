@@ -8,8 +8,8 @@ const app = express(); // instanciranje aplikacije
 const port = 3000; // port na kojem će web server slušati
 
 app.use(cors({
-    origin: ["https://fav-sho-frontend.vercel.app:3000"],
-    methods: ["POST", "GET"],
+    origin: ["*"],
+    methods: ["POST", "GET", "DELETE"],
     credentials: true
   }));
 app.use(express.json());
